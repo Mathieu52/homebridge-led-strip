@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
 import { ExampleHomebridgePlatform } from './platform';
@@ -64,36 +65,25 @@ export class LED_Strip {
 
 
     noble.on('stateChange', (state) => {
-      console.log('STATE : ' + state);
+      this.platform.log.debug('STATE : ' + state);
       if (state === 'poweredOn') {
-        console.log('STARTED SCANNING');
+        this.platform.log.debug('STARTED SCANNING');
         noble.startScanning([this.serviceID], false);
       } else {
-        console.log('STOPPED SCANNING');
+        this.platform.log.debug('STOPPED SCANNING');
         noble.stopScanning();
       }
     });
 
     noble.on('discover', (peripheral) => {
-      peripheral.connect((error) => {
-        console.log('connected to peripheral: ' + peripheral.uuid);
+      peripheral.connect(() => {
+        this.platform.log.debug('connected to peripheral: ' + peripheral.uuid);
         peripheral.discoverServices([this.serviceID], (error, services) => {
           const deviceInformationService = services[0];
-          console.log(services);
 
           deviceInformationService.discoverCharacteristics([], (error, characteristics) => {
-            console.log(characteristics);
             const c = characteristics[0];
             this.LEDChar = c;
-
-            c.on('data', (data, isNotification) => {
-              console.log('battery level is now: ', data.readUInt8(0) + '%');
-            });
-
-            // to enable notify
-            c.subscribe((error) => {
-              console.log('battery level notification on');
-            });
           });
         });
       });
