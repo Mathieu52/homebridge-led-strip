@@ -1,5 +1,4 @@
 {
-  "private": true,
   "displayName": "Homebridge LED Strip",
   "name": "homebridge-led-strip",
   "version": "1.0.0",
