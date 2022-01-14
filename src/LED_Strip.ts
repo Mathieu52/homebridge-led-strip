@@ -2,6 +2,7 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
 import { ExampleHomebridgePlatform } from './platform';
+import { Color } from './Color';
 
 import noble = require('@abandonware/noble');
 
@@ -37,8 +38,8 @@ export class LED_Strip {
 
   private colorCorrection = {
     r:1.0,
-    g:0.6,
-    b:0.6,
+    g:0.7,
+    b:0.7,
   };
 
   constructor(
@@ -146,58 +147,14 @@ export class LED_Strip {
   };
 
   private updateColor() {
-    const h = this.states.Hue;
-    const s = this.states.Saturation / 100.0;
-    let v = this.states.Brightness / 100.0;
-
+    let color : Color = new Color(0, 0, 0);
+    color.setHSV(this.states.Hue, this.states.Saturation, this.states.Brightness);
     if (!this.states.On) {
-      v = 0;
+      color.brightness = 0;
     }
+    color = color.getLUTCorrected(this.colorCorrection.r, this.colorCorrection.g, this.colorCorrection.b);
 
-    const k = v * s;
-
-    const x = k * (1.0 - Math.abs(((h / 60) % 2) - 1));
-
-    const m = v - k;
-
-    let r, g, b;
-
-    if(h >= 0 && h < 60) {
-      r = k;
-      g = x;
-      b = 0;
-    }
-    if(h >= 60 && h < 120) {
-      r = x;
-      g = k;
-      b = 0;
-    }
-
-    if(h >= 120 && h < 180) {
-      r = 0;
-      g = k;
-      b = x;
-    }
-
-    if(h >= 180 && h < 240) {
-      r = 0;
-      g = x;
-      b = k;
-    }
-
-    if(h >= 240 && h < 300) {
-      r = x;
-      g = 0;
-      b = k;
-    }
-
-    if(h >= 300 && h < 360) {
-      r = k;
-      g = 0;
-      b = x;
-    }
-
-    this.write([0x01, (r+m)*255 * this.colorCorrection.r, (g+m)*255 * this.colorCorrection.g, (b+m)*255 * this.colorCorrection.b]);
+    this.write([0x01, color.red, color.green, color.blue]);
   }
   /**
    * Handle "SET" requests from HomeKit
