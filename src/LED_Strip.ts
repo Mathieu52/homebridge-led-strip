@@ -84,6 +84,7 @@ export class LED_Strip {
           deviceInformationService.discoverCharacteristics([], (error, characteristics) => {
             const c = characteristics[0];
             this.LEDChar = c;
+            this.updateColor();
           });
         });
       });
