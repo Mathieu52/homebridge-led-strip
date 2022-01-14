@@ -26,7 +26,7 @@ export class LED_Strip {
     RainbowMode: false,
     Hue: 0,
     Saturation:0,
-    Brightness: 100,
+    Brightness: 0,
   };
 
   private parameters = {
