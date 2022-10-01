@@ -57,8 +57,8 @@ export class LED_Strip {
     this.serviceUUID = accessory.context.device.serviceUUID;
     this.parameters.rainbowModeCycleTime = accessory.context.device.rainbowCycle * 1000.0;
 
-    this.led = this.accessory.getService(deviceName) || this.accessory.addService(this.platform.Service.Lightbulb, deviceName);
-    this.rainbow = this.accessory.getService(deviceName + '\'s rainbow mode') || this.accessory.addService(this.platform.Service.Switch, deviceName + '\'s rainbow mode');
+    this.led = this.accessory.getService('LED') || this.accessory.addService(this.platform.Service.Lightbulb, 'LED');
+    this.rainbow = this.accessory.getService('Rainbow mode') || this.accessory.addService(this.platform.Service.Switch, deviceName + 'Rainbow mode');
 
 
     noble.on('stateChange', (state) => {
