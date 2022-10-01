@@ -114,7 +114,7 @@ export class Color {
   }
 
   /**
-   * Returs LUT corrected color
+   * Returns LUT corrected color
    * @param redCorrection red correction parameters
    * @param greenCorrection green correction parameters
    * @param blueCorrection blue correction parameters

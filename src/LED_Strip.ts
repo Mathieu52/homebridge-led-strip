@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
-import { ExampleHomebridgePlatform } from './platform';
+import { LEDStripsPlatform } from './platform';
 import { Color } from './Color';
 
 import noble = require('@abandonware/noble');
@@ -14,14 +14,10 @@ import noble = require('@abandonware/noble');
 export class LED_Strip {
   private led: Service;
   private rainbow: Service;
-  private LEDChar;
+  private LED_Characteristic: noble.Characteristic | undefined;
 
   private serviceUUID : string;
 
-  /**
-   * These are just used to create a working example
-   * You should implement your own code to track the state of your accessory
-   */
   private states = {
     On: false,
     RainbowMode: false,
@@ -31,56 +27,50 @@ export class LED_Strip {
   };
 
   private parameters = {
-    rainbowModeCycleTime: 15000,
-    updateInterval: 50,
-    HomeKitUpdateInterval: 200,
+    rainbow_cycle_time: 15.0, // Time in seconds to complete a full rainbow cycle
+    rainbow_update_interval: 50,
   };
 
-  private colorCorrection = {
+  private color_correction = {
     r:1.0,
     g:0.7,
     b:0.7,
   };
 
   constructor(
-    private readonly platform: ExampleHomebridgePlatform,
+    private readonly platform: LEDStripsPlatform,
     private readonly accessory: PlatformAccessory,
   ) {
 
-    // set accessory information
-    this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer')
-      .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+    //  Set accessory information
+    //this.accessory.getService(this.platform.Service.AccessoryInformation)!
+    //.setCharacteristic(this.platform.Characteristic.Manufacturer, 'Unknown')
+    //.setCharacteristic(this.platform.Characteristic.Model, 'Unknown')
+    //.setCharacteristic(this.platform.Characteristic.SerialNumber, 'Unknown');
 
     this.serviceUUID = accessory.context.device.serviceUUID;
-    this.parameters.rainbowModeCycleTime = accessory.context.device.rainbowCycle * 1000.0;
+    this.parameters.rainbow_cycle_time = accessory.context.device.rainbowCycle;
 
     this.led = this.accessory.getService('LED') || this.accessory.addService(this.platform.Service.Lightbulb, 'LED');
     this.rainbow = this.accessory.getService('Rainbow mode') || this.accessory.addService(this.platform.Service.Switch, 'Rainbow mode');
 
 
+
     noble.on('stateChange', (state) => {
-      this.platform.log.debug('STATE : ' + state);
-      if (state === 'poweredOn') {
-        this.platform.log.debug('STARTED SCANNING');
+      this.platform.log.debug('Bluetooth: ' + state === 'poweredOn' ? 'Started Scanning' : 'Stopped Scanning');
+      if (state === 'poweredOn') // eslint-disable-next-line curly
         noble.startScanning([this.serviceUUID], false);
-      } else {
-        this.platform.log.debug('STOPPED SCANNING');
+      else // eslint-disable-next-line curly
         noble.stopScanning();
-      }
     });
 
     noble.on('discover', (peripheral) => {
       peripheral.connect(() => {
-        this.platform.log.debug('connected to peripheral: ' + peripheral.uuid);
-        peripheral.discoverServices([this.serviceUUID], (error, services) => {
-          const deviceInformationService = services[0];
-
-          deviceInformationService.discoverCharacteristics([], (error, characteristics) => {
-            const c = characteristics[0];
-            this.LEDChar = c;
-            this.platform.log.debug('CycleTime : ' + accessory.context.device.rainbowCycle);
+        this.platform.log.debug('Connected to strips with UUID: ' + peripheral.uuid);
+        peripheral.discoverServices([this.serviceUUID], (_error, services) => {
+          services[0].discoverCharacteristics([], (_error, characteristics) => {
+            const characteristic = characteristics[0];
+            this.LED_Characteristic = characteristic;
             this.updateColor();
           });
         });
@@ -88,46 +78,35 @@ export class LED_Strip {
     });
 
 
-
-    // register handlers for the On/Off Characteristic
+    //  Register Handlers for On/Off, Hue, Saturation Characteristics
     this.led.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.setOn.bind(this))                // SET - bind to the `setOn` method below
-      .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
+      .onSet(this.setOn.bind(this))
+      .onGet(this.getOn.bind(this));
 
-    // register handlers for the Brightness Characteristic
     this.led.getCharacteristic(this.platform.Characteristic.Hue)
-      .onSet(this.setHue.bind(this))       // SET - bind to the 'setBrightness` method below
+      .onSet(this.setHue.bind(this))
       .onGet(this.getHue.bind(this));
 
     this.led.getCharacteristic(this.platform.Characteristic.Saturation)
-      .onSet(this.setSaturation.bind(this))       // SET - bind to the 'setBrightness` method below
+      .onSet(this.setSaturation.bind(this))
       .onGet(this.getSaturation.bind(this));
 
     this.led.getCharacteristic(this.platform.Characteristic.Brightness)
-      .onSet(this.setBrightness.bind(this))       // SET - bind to the 'setBrightness` method below
+      .onSet(this.setBrightness.bind(this))
       .onGet(this.getBrightness.bind(this));
 
+
+    //  Register Handler for On/Off Characteristic for the RainbowMode
     this.rainbow.getCharacteristic(this.platform.Characteristic.On)
       .onSet(this.setRainbowMode.bind(this))                // SET - bind to the `setOn` method below
       .onGet(this.getRainbowMode.bind(this));
 
-    setInterval(() => {
-      if (this.states.RainbowMode) {
-        this.states.Hue = (this.states.Hue + (360.0 / this.parameters.rainbowModeCycleTime) * this.parameters.updateInterval) % 360;
-        this.states.Saturation = 100;
 
-        this.updateColor();
-      }
-    }, this.parameters.updateInterval);
+    //  Update the rainbow mode when active on regular interval
+    setInterval(this.updateRainbowMode, this.parameters.rainbow_update_interval);
 
-    setInterval(() => {
-      if (this.states.RainbowMode) {
-        this.led.getCharacteristic(this.platform.Characteristic.Hue).updateValue(this.states.Hue);
-        this.led.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(this.states.Saturation);
-        this.led.getCharacteristic(this.platform.Characteristic.Brightness).updateValue(this.states.Brightness);
-      }
-    }, this.parameters.HomeKitUpdateInterval);
 
+    //  When bluetooth is enabled, and the strips haven't been found yet, start a new scan every 1 second;
     setInterval(() => {
       if (noble.state === 'poweredOn') {
         noble.stopScanning();
@@ -136,10 +115,20 @@ export class LED_Strip {
     }, 1000);
   }
 
+  private updateRainbowMode() {
+    if (!this.states.RainbowMode) // eslint-disable-next-line curly
+      return;
+
+    this.setHue(Number(this.getHue()) + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time);
+    this.setSaturation(100);
+
+    this.updateColor();
+  }
+
   private write = (message:number[]) => {
-    if (typeof this.LEDChar !== 'undefined') {
+    if (typeof this.LED_Characteristic !== 'undefined') {
       try {
-        this.LEDChar.write(Buffer.from(message), true);
+        this.LED_Characteristic.write(Buffer.from(message), true);
       } catch {
         this.platform.log.error(`Could not write to ${this.accessory.context.device.displayName}`);
       }
@@ -152,7 +141,7 @@ export class LED_Strip {
     if (!this.states.On) {
       color.brightness = 0;
     }
-    color = color.getLUTCorrected(this.colorCorrection.r, this.colorCorrection.g, this.colorCorrection.b);
+    color = color.getLUTCorrected(this.color_correction.r, this.color_correction.g, this.color_correction.b);
 
     this.write([0x01, color.red, color.green, color.blue]);
   }
@@ -190,7 +179,7 @@ export class LED_Strip {
   }
 
   async setHue(value: CharacteristicValue) {
-    this.states.Hue = value as number;
+    this.states.Hue = value as number % 360;
     this.states.RainbowMode = false;
     this.rainbow.getCharacteristic(this.platform.Characteristic.On).updateValue(this.states.RainbowMode);
 
