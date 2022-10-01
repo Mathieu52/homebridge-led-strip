@@ -103,7 +103,16 @@ export class LED_Strip {
 
 
     //  Update the rainbow mode when active on regular interval
-    setInterval(this.updateRainbowMode, this.parameters.rainbow_update_interval);
+    setInterval(() => {
+      if (!this.states.RainbowMode) {
+        return;
+      }
+
+      this.setHue(Number(this.getHue()) + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time);
+      this.setSaturation(100);
+
+      this.updateColor();
+    }, this.parameters.rainbow_update_interval);
 
 
     //  When bluetooth is enabled, and the strips haven't been found yet, start a new scan every 1 second;
@@ -115,6 +124,7 @@ export class LED_Strip {
     }, 1000);
   }
 
+  /*
   private updateRainbowMode() {
     if (!this.states.RainbowMode) {
       return;
@@ -125,6 +135,7 @@ export class LED_Strip {
 
     this.updateColor();
   }
+  */
 
   private write = (message:number[]) => {
     if (typeof this.LED_Characteristic !== 'undefined') {
