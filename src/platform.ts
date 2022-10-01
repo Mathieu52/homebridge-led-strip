@@ -56,53 +56,57 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
     // or a user-defined array in the platform config.
     //const device = config as PlatformAccessory;
 
+    const devices = config.strips;
+
     // loop over the discovered devices and register each one if it has not already been registered
+    for (const device of devices) {
 
-    // generate a unique id for the accessory this should be generated from
-    // something globally unique, but constant, for example, the device serial
-    // number or MAC address
-    const uuid = this.api.hap.uuid.generate(config.serviceUUID);
+      // loop over the discovered devices and register each one if it has not already been registered
 
-    // see if an accessory with the same uuid has already been registered and restored from
-    // the cached devices we stored in the `configureAccessory` method above
-    const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+      // generate a unique id for the accessory this should be generated from
+      // something globally unique, but constant, for example, the device serial
+      // number or MAC address
+      const uuid = this.api.hap.uuid.generate(config.serviceUUID);
 
-    if (existingAccessory) {
-      // the accessory already exists
-      this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+      // see if an accessory with the same uuid has already been registered and restored from
+      // the cached devices we stored in the `configureAccessory` method above
+      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
-      // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
-      existingAccessory.context.device = config;
-      existingAccessory.displayName = config.displayName;
-      existingAccessory.context.deviceName = config.displayName;
+      if (existingAccessory) {
+        // the accessory already exists
+        this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
 
-      this.api.updatePlatformAccessories([existingAccessory]);
+        // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
+        existingAccessory.context.device = device;
 
-      // create the accessory handler for the restored accessory
-      // this is imported from `platformAccessory.ts`
-      new LED_Strip(this, existingAccessory);
+        this.api.updatePlatformAccessories([existingAccessory]);
 
-      // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
-      // remove platform accessories when no longer present
-      // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-      // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
-    } else {
-      // the accessory does not yet exist, so we need to create it
-      this.log.info('Adding new accessory:', config.displayName);
+        // create the accessory handler for the restored accessory
+        // this is imported from `platformAccessory.ts`
+        new LED_Strip(this, existingAccessory);
 
-      // create a new accessory
-      const accessory = new this.api.platformAccessory(config.displayName, uuid);
+        // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
+        // remove platform accessories when no longer present
+        // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+        // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
+      } else {
+        // the accessory does not yet exist, so we need to create it
+        this.log.info('Adding new accessory:', device.displayName);
 
-      // store a copy of the device object in the `accessory.context`
-      // the `context` property can be used to store any data about the accessory you may need
-      accessory.context.device = config;
+        // create a new accessory
+        const accessory = new this.api.platformAccessory(device.displayName, uuid);
 
-      // create the accessory handler for the newly create accessory
-      // this is imported from `platformAccessory.ts`
-      new LED_Strip(this, accessory);
+        // store a copy of the device object in the `accessory.context`
+        // the `context` property can be used to store any data about the accessory you may need
+        accessory.context.device = device;
 
-      // link the accessory to your platform
-      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+        // create the accessory handler for the newly create accessory
+        // this is imported from `platformAccessory.ts`
+        new LED_Strip(this, accessory);
+
+        // link the accessory to your platform
+        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      }
     }
   }
 }

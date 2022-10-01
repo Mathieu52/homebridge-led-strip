@@ -4,25 +4,31 @@
   "singular": true,
   "schema": {
     "type": "object",
-    "properties": {
-      "displayName": {
-        "title": "Name",
-        "type": "string",
-        "required": true,
-        "default": "LED"
-      },
-      "serviceUUID": {
-        "title": "Service UUID",
-        "type": "string",
-        "required": true,
-        "default": "fff0"
-      },
-      "rainbowCycle": {
-        "title": "Rainbow Cycle Time",
-        "description": "Time in seconds to complete a full rainbow",
-        "type": "number",
-        "required": true,
-        "default": "15"
+    "strips": {
+      "title": "LED Strips",
+      "type": "array",
+      "items": {
+        "properties": {
+          "displayName": {
+            "title": "Name",
+            "type": "string",
+            "required": true,
+            "default": "LED"
+          },
+          "serviceUUID": {
+            "title": "Service UUID",
+            "type": "string",
+            "required": true,
+            "default": "fff0"
+          },
+          "rainbowCycle": {
+            "title": "Rainbow Cycle Time",
+            "description": "Time in seconds to complete a full rainbow",
+            "type": "number",
+            "required": true,
+            "default": "15"
+          }
+        }
       }
     }
   }
