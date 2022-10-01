@@ -4,11 +4,11 @@
   "singular": true,
   "schema": {
     "type": "object",
-    "strips": {
-      "title": "LED Strips",
-      "type": "array",
-      "items": {
-        "properties": {
+    "properties": {
+      "strips": {
+        "title": "LED Strips",
+        "type": "array",
+        "items": {
           "displayName": {
             "title": "Name",
             "type": "string",
