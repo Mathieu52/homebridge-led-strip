@@ -142,7 +142,11 @@ export class LED_Strip {
 
   private write = (message:number[]) => {
     if (typeof this.LEDChar !== 'undefined') {
-      this.LEDChar.write(Buffer.from(message), true);
+      try {
+        this.LEDChar.write(Buffer.from(message), true);
+      } catch {
+        this.platform.log.error(`Could not write to ${this.accessory.context.device.displayName}`);
+      }
     }
   };
 
