@@ -82,6 +82,7 @@ export class LED_Strip {
           deviceInformationService.discoverCharacteristics([], (error, characteristics) => {
             const c = characteristics[0];
             this.LEDChar = c;
+            this.platform.log.debug('CycleTime : ' + accessory.context.device.rainbowCycle);
             this.updateColor();
           });
         });
@@ -156,7 +157,6 @@ export class LED_Strip {
     color = color.getLUTCorrected(this.colorCorrection.r, this.colorCorrection.g, this.colorCorrection.b);
 
     this.write([0x01, color.red, color.green, color.blue]);
-    this.platform.log.debug('CycleTime : ' + this.parameters.rainbowModeCycleTime);
   }
   /**
    * Handle "SET" requests from HomeKit
