@@ -53,9 +53,6 @@ export class LED_Strip {
       .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
 
-    // get the LightBulb service if it exists, otherwise create a new LightBulb service
-    // you can create multiple services for each accessory
-
     const deviceName = accessory.context.device.displayName;
     const deviceUUID = accessory.context.device.uniqueID;
     this.serviceID = accessory.context.device.serviceID;
@@ -67,6 +64,7 @@ export class LED_Strip {
 
     noble.on('stateChange', (state) => {
       this.platform.log.debug('STATE : ' + state);
+      this.platform.log.debug('CycleTime : ' + this.parameters.rainbowModeCycleTime);
       if (state === 'poweredOn') {
         this.platform.log.debug('STARTED SCANNING');
         noble.startScanning([this.serviceID], false);
