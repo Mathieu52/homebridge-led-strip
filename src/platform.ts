@@ -73,6 +73,8 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
 
       // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
       existingAccessory.context.device = config;
+      existingAccessory.displayName = config.displayName;
+
       this.api.updatePlatformAccessories([existingAccessory]);
 
       // create the accessory handler for the restored accessory
