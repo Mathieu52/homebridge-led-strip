@@ -1,4 +1,4 @@
-import { API } from 'homebridge';
+import { API, AudioSamplerate } from 'homebridge';
 
 import { PLATFORM_NAME } from './settings';
 import { ExampleHomebridgePlatform } from './platform';
