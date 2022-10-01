@@ -53,7 +53,6 @@ export class LED_Strip {
       .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
 
-    const deviceName = accessory.context.device.displayName;
     this.serviceUUID = accessory.context.device.serviceUUID;
     this.parameters.rainbowModeCycleTime = accessory.context.device.rainbowCycle * 1000.0;
 
