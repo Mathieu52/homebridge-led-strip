@@ -11,14 +11,8 @@
         "required": true,
         "default": "LED"
       },
-      "uniqueID": {
-        "title": "ID",
-        "type": "string",
-        "required": true,
-        "default": "1234"
-      },
-      "serviceID": {
-        "title": "Service ID",
+      "serviceUUID": {
+        "title": "Service UUID",
         "type": "string",
         "required": true,
         "default": "fff0"

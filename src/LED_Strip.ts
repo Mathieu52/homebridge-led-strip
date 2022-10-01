@@ -16,7 +16,7 @@ export class LED_Strip {
   private rainbow: Service;
   private LEDChar;
 
-  private serviceID : string;
+  private serviceUUID : string;
 
   /**
    * These are just used to create a working example
@@ -54,19 +54,18 @@ export class LED_Strip {
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
 
     const deviceName = accessory.context.device.displayName;
-    const deviceUUID = accessory.context.device.uniqueID;
-    this.serviceID = accessory.context.device.serviceID;
+    this.serviceUUID = accessory.context.device.serviceUUID;
     this.parameters.rainbowModeCycleTime = accessory.context.device.rainbowCycle * 1000.0;
 
-    this.led = this.accessory.getService(deviceName) || this.accessory.addService(this.platform.Service.Lightbulb, deviceName, deviceUUID + 'LED');
-    this.rainbow = this.accessory.getService(deviceName + ' Rainbow mode') || this.accessory.addService(this.platform.Service.Switch, deviceName + ' Rainbow mode', deviceUUID + ' Rainbow mode');
+    this.led = this.accessory.getService(deviceName) || this.accessory.addService(this.platform.Service.Lightbulb, deviceName, this.serviceUUID + 'LED');
+    this.rainbow = this.accessory.getService(deviceName + ' Rainbow mode') || this.accessory.addService(this.platform.Service.Switch, deviceName + '\'s rainbow mode', this.serviceUUID + ' Rainbow mode');
 
 
     noble.on('stateChange', (state) => {
       this.platform.log.debug('STATE : ' + state);
       if (state === 'poweredOn') {
         this.platform.log.debug('STARTED SCANNING');
-        noble.startScanning([this.serviceID], false);
+        noble.startScanning([this.serviceUUID], false);
       } else {
         this.platform.log.debug('STOPPED SCANNING');
         noble.stopScanning();
@@ -76,7 +75,7 @@ export class LED_Strip {
     noble.on('discover', (peripheral) => {
       peripheral.connect(() => {
         this.platform.log.debug('connected to peripheral: ' + peripheral.uuid);
-        peripheral.discoverServices([this.serviceID], (error, services) => {
+        peripheral.discoverServices([this.serviceUUID], (error, services) => {
           const deviceInformationService = services[0];
 
           deviceInformationService.discoverCharacteristics([], (error, characteristics) => {
@@ -133,7 +132,7 @@ export class LED_Strip {
     setInterval(() => {
       if (noble.state === 'poweredOn') {
         noble.stopScanning();
-        noble.startScanning([this.serviceID], false);
+        noble.startScanning([this.serviceUUID], false);
       }
     }, 1000);
   }
