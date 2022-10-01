@@ -116,8 +116,9 @@ export class LED_Strip {
   }
 
   private updateRainbowMode() {
-    if (!this.states.RainbowMode) // eslint-disable-next-line curly
+    if (!this.states.RainbowMode) {
       return;
+    }
 
     this.setHue(Number(this.getHue()) + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time);
     this.setSaturation(100);
