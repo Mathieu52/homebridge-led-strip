@@ -6,4 +6,4 @@ export const PLATFORM_NAME = 'Homebridge LED Strip';
 /**
  * This must match the name of your plugin as defined the package.json
  */
-export const PLUGIN_NAME = 'homebridge-led-strip';
+export const PLUGIN_NAME = 'homebridge-led-strip-custom';
