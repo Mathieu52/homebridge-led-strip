@@ -64,7 +64,6 @@ export class LED_Strip {
 
     noble.on('stateChange', (state) => {
       this.platform.log.debug('STATE : ' + state);
-      this.platform.log.debug('CycleTime : ' + this.parameters.rainbowModeCycleTime);
       if (state === 'poweredOn') {
         this.platform.log.debug('STARTED SCANNING');
         noble.startScanning([this.serviceID], false);
@@ -157,6 +156,7 @@ export class LED_Strip {
     color = color.getLUTCorrected(this.colorCorrection.r, this.colorCorrection.g, this.colorCorrection.b);
 
     this.write([0x01, color.red, color.green, color.blue]);
+    this.platform.log.debug('CycleTime : ' + this.parameters.rainbowModeCycleTime);
   }
   /**
    * Handle "SET" requests from HomeKit
