@@ -114,7 +114,7 @@ export class LED_Strip {
     //  Update the rainbow mode when active on regular interval
     setInterval(() => {
       if (this.states.RainbowMode) {
-        this.states.Hue = this.states.Hue + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time;
+        this.states.Hue = (this.states.Hue + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time) % 360;
         this.states.Saturation = 100;
 
         this.updateColor();
@@ -198,7 +198,7 @@ export class LED_Strip {
   }
 
   async setHue(value: CharacteristicValue) {
-    this.states.Hue = value as number % 360;
+    this.states.Hue = value as number;
     this.states.RainbowMode = false;
     this.rainbow.getCharacteristic(this.platform.Characteristic.On).updateValue(this.states.RainbowMode);
 
