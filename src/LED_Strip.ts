@@ -117,9 +117,6 @@ export class LED_Strip {
         this.states.Hue = this.states.Hue + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time;
         this.states.Saturation = 100;
 
-        this.rainbow.getCharacteristic(this.platform.Characteristic.Hue).updateValue(this.states.Hue);
-        this.rainbow.getCharacteristic(this.platform.Characteristic.On).updateValue(this.states.RainbowMode);
-
         this.updateColor();
       }
     }, this.parameters.rainbow_update_interval);
