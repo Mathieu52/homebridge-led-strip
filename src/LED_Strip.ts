@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import { Service, PlatformAccessory, CharacteristicValue, Characteristic } from 'homebridge';
 
 import { LEDStripsPlatform } from './platform';
 import { Color } from './Color';
@@ -108,7 +108,7 @@ export class LED_Strip {
         return;
       }
 
-      this.setHue(Number(this.getHue()) + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time);
+      this.setHue(this.states.Hue + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time);
       this.setSaturation(100);
 
       this.updateColor();
