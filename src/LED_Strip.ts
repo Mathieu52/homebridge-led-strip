@@ -29,6 +29,7 @@ export class LED_Strip {
   private parameters = {
     rainbow_cycle_time: 15.0, // Time in seconds to complete a full rainbow cycle
     rainbow_update_interval: 50,
+    HomeKitUpdateInterval: 200,
   };
 
   private color_correction = {
@@ -102,16 +103,25 @@ export class LED_Strip {
       .onGet(this.getRainbowMode.bind(this));
 
 
+    setInterval(() => {
+      if (this.states.RainbowMode) {
+        this.led.getCharacteristic(this.platform.Characteristic.Hue).updateValue(this.states.Hue);
+        this.led.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(this.states.Saturation);
+        this.led.getCharacteristic(this.platform.Characteristic.Brightness).updateValue(this.states.Brightness);
+      }
+    }, this.parameters.HomeKitUpdateInterval);
+
     //  Update the rainbow mode when active on regular interval
     setInterval(() => {
-      if (!this.states.RainbowMode) {
-        return;
+      if (this.states.RainbowMode) {
+        this.states.Hue = this.states.Hue + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time;
+        this.states.Saturation = 100;
+
+        this.rainbow.getCharacteristic(this.platform.Characteristic.Hue).updateValue(this.states.Hue);
+        this.rainbow.getCharacteristic(this.platform.Characteristic.On).updateValue(this.states.RainbowMode);
+
+        this.updateColor();
       }
-
-      this.setHue(this.states.Hue + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time);
-      this.setSaturation(100);
-
-      this.updateColor();
     }, this.parameters.rainbow_update_interval);
 
 
