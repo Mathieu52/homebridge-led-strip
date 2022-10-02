@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { Service, PlatformAccessory, CharacteristicValue, Characteristic } from 'homebridge';
+import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
 import { LEDStripsPlatform } from './platform';
 import { Color } from './Color';
