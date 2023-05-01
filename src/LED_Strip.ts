@@ -135,6 +135,7 @@ export class LED_Strip {
         this.rainbow.getCharacteristic(this.platform.Characteristic.Hue).updateValue(this.rainbow_states.Color.hue);
         this.rainbow.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(this.rainbow_states.Color.saturation);
         this.rainbow.getCharacteristic(this.platform.Characteristic.Brightness).updateValue(this.rainbow_states.Color.brightness);
+        platform.log.debug('time: ' + this.dayLight?.time);
       }
     }, this.parameters.HomeKitUpdateInterval);
 
