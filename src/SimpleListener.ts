@@ -1,5 +1,5 @@
 type ListenerRemover = () => boolean;
-type ListenerAction = (...args: Array<any>) => void;
+type ListenerAction = (...args: Array<unknown>) => void;
 
 // This class let's to add functions that are fire method is called.
 //
@@ -32,7 +32,7 @@ export class SimpleListener {
     return false;
   };
 
-  public fire = (...args: Array<any>): void => {
+  public fire = (...args: Array<unknown>): void => {
     for (let i = 0; i < this.listeners.length; ++i) {
       const listener = this.listeners[i];
       listener.apply(listener, args);
