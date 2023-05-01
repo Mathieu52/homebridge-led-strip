@@ -55,8 +55,13 @@ export class LED_Strip {
     this.led = this.accessory.getService('LED') || this.accessory.addService(this.platform.Service.Lightbulb, 'LED');
     this.rainbow = this.accessory.getService('Rainbow mode') || this.accessory.addService(this.platform.Service.Switch, 'Rainbow mode');
 
+    noble.on('scanStart', () => this.platform.log.debug('Started Scanning...'));
+    noble.on('scanStop', () => this.platform.log.debug('Stopped Scanning...'));
+    noble.on('warning', (message) => this.platform.log.warn('Noble: ' + message));
+    noble.on('error', (message) => this.platform.log.error('Noble: ' + message));
+    noble.on('stateChange', (state) => this.platform.log.debug('Noble State: ' + state));
 
-
+    /*
     noble.on('stateChange', (state) => {
       this.platform.log.debug('Bluetooth: ' + state === 'poweredOn' ? 'Started Scanning' : 'Stopped Scanning');
       if (state === 'poweredOn') // eslint-disable-next-line curly
@@ -64,6 +69,7 @@ export class LED_Strip {
       else // eslint-disable-next-line curly
         noble.stopScanning();
     });
+    */
 
     noble.on('discover', (peripheral) => {
       peripheral.connect(() => {
@@ -121,10 +127,9 @@ export class LED_Strip {
       }
     }, this.parameters.rainbow_update_interval);
 
-
     //  When bluetooth is enabled, and the strips haven't been found yet, start a new scan every 1 second;
     setInterval(() => {
-      if (noble.state === 'poweredOn') {
+      if (noble.state !== 'poweredOn') {
         noble.stopScanning();
         noble.startScanning([this.serviceUUID], false);
       }
