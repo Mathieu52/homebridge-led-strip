@@ -29,6 +29,20 @@
               "type": "number",
               "required": true,
               "default": "15"
+            },
+            "longitude": {
+              "title": "Longitude",
+              "description": "Your device longitude",
+              "type": "number",
+              "required": true,
+              "default": "0"
+            },
+            "latitude": {
+              "title": "Latitude",
+              "description": "Your device latitude",
+              "type": "number",
+              "required": true,
+              "default": "0"
             }
           }
         }

@@ -6,6 +6,7 @@ import { Color } from './Color';
 import { BluetoothLED } from './BluetoothLED';
 
 import noble = require('@abandonware/noble');
+import { DayLight } from './DayLight';
 
 /**
  * Platform Accessory
@@ -15,9 +16,10 @@ import noble = require('@abandonware/noble');
 export class LED_Strip {
   private led: Service;
   private rainbow: Service;
-  //private light_of_day: Service;
+  private light_of_day: Service;
 
   private bluetoothLED: BluetoothLED | undefined;
+  private dayLight : DayLight | undefined;
 
   private serviceUUID : string;
 
@@ -34,7 +36,7 @@ export class LED_Strip {
 
   private light_of_day_states = {
     On: false,
-    Color : new Color(0, 0, 0),
+    Brightness : 0.0,
   };
 
   private parameters = {
@@ -62,8 +64,6 @@ export class LED_Strip {
     this.serviceUUID = accessory.context.device.serviceUUID;
     this.parameters.rainbow_cycle_time = accessory.context.device.rainbowCycle;
 
-    //this.light_of_day = this.accessory.getService('Light of day') || this.accessory.addService(this.platform.Service.Lightbulb, 'Light of day');
-
     //  Prepare LED
     this.bluetoothLED = new BluetoothLED(this.serviceUUID);
 
@@ -72,6 +72,8 @@ export class LED_Strip {
 
     //this.bluetoothLED.onDisconnect.add(() => this.led.setHiddenService(true));
     //this.bluetoothLED.onDisconnect.add(() => this.led.setHiddenService(false));
+
+    this.dayLight = new DayLight(accessory.context.device.longitude, accessory.context.device.latitude);
 
     noble.on('scanStart', () => this.platform.log.debug('Started Scanning...'));
     noble.on('scanStop', () => this.platform.log.debug('Stopped Scanning...'));
@@ -112,6 +114,21 @@ export class LED_Strip {
       .onSet(this.setRainbowBrightness.bind(this))
       .onGet(this.getRainbowBrightness.bind(this));
 
+    this.light_of_day = this.accessory.getService('Light of day') || this.accessory.addService(this.platform.Service.Lightbulb, 'Light of day', 'light_of_day');
+
+    this.light_of_day.getCharacteristic(this.platform.Characteristic.On)
+      .onSet(this.setLightOfDayOn.bind(this))
+      .onGet(this.getLightOfDayOn.bind(this));
+
+    this.light_of_day.getCharacteristic(this.platform.Characteristic.Hue)
+      .onGet(this.getLightOfDayHue.bind(this));
+
+    this.light_of_day.getCharacteristic(this.platform.Characteristic.Saturation)
+      .onGet(this.getLightOfDaySaturation.bind(this));
+
+    this.light_of_day.getCharacteristic(this.platform.Characteristic.Brightness)
+      .onSet(this.setLightOfDayBrightness.bind(this))
+      .onGet(this.getLightOfDayBrightness.bind(this));
 
     setInterval(() => {
       if (this.rainbow_states.On) {
@@ -155,6 +172,14 @@ export class LED_Strip {
       } else {
         color = this.main_states.Color;
       }
+    }
+
+    if (this.light_of_day_states.On) {
+      const maxBrightness = 100 - color.brightness;
+      const dayLightColor = this.dayLight ? this.dayLight.color : new Color(0, 0, 0);
+      dayLightColor.brightness = Math.min(dayLightColor.brightness * (this.light_of_day_states.Brightness / 100.0), maxBrightness);
+
+      color = new Color(color.red + dayLightColor.red, color.green + dayLightColor.green, color.blue + dayLightColor.blue);
     }
 
     color = color.getLUTCorrected(this.color_correction.r, this.color_correction.g, this.color_correction.b);
@@ -235,6 +260,32 @@ export class LED_Strip {
 
   async setRainbowBrightness(value: CharacteristicValue) {
     this.rainbow_states.cycle_time_modifier = (value as number) / 100.0;
+    this.updateLED();
+  }
+
+  async getLightOfDayOn(): Promise<CharacteristicValue> {
+    return this.light_of_day_states.On;
+  }
+
+  async getLightOfDayBrightness(): Promise<CharacteristicValue> {
+    return this.light_of_day_states.Brightness;
+  }
+
+  async getLightOfDayHue(): Promise<CharacteristicValue> {
+    return this.dayLight ? this.dayLight.color.hue : 0;
+  }
+
+  async getLightOfDaySaturation(): Promise<CharacteristicValue> {
+    return this.dayLight ? this.dayLight.color.saturation : 0;
+  }
+
+  async setLightOfDayOn(value: CharacteristicValue) {
+    this.light_of_day_states.On = value as boolean;
+    this.updateLED();
+  }
+
+  async setLightOfDayBrightness(value: CharacteristicValue) {
+    this.light_of_day_states.Brightness = (value as number);
     this.updateLED();
   }
 }
