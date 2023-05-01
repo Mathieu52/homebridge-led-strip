@@ -78,7 +78,7 @@ export class LED_Strip {
     noble.on('warning', (message: string) => this.platform.log.warn('Noble: ' + message));
     noble.on('error', (message: string) => this.platform.log.error('Noble: ' + message));
 
-    this.led = this.accessory.getService('LED') || this.accessory.addService(this.platform.Service.Lightbulb, 'LED');
+    this.led = this.accessory.getService('LED') || this.accessory.addService(this.platform.Service.Lightbulb, 'LED', 'LED-main');
     //  Register Handlers for On/Off, Hue, Saturation Characteristics
     this.led.getCharacteristic(this.platform.Characteristic.On)
       .onSet(this.setLEDOn.bind(this))
@@ -96,7 +96,7 @@ export class LED_Strip {
       .onSet(this.setLEDBrightness.bind(this))
       .onGet(this.getLEDBrightness.bind(this));
 
-    this.rainbow = this.accessory.getService('Rainbow light') || this.accessory.addService(this.platform.Service.Lightbulb, 'Rainbow light');
+    this.rainbow = this.accessory.getService('Rainbow light') || this.accessory.addService(this.platform.Service.Lightbulb, 'Rainbow light', 'LED-rainbow');
 
     this.rainbow.getCharacteristic(this.platform.Characteristic.On)
       .onSet(this.setRainbowOn.bind(this))
