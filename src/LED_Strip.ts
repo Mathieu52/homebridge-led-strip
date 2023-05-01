@@ -15,7 +15,7 @@ import noble = require('@abandonware/noble');
 export class LED_Strip {
   private led: Service;
   private rainbow: Service;
-  private light_of_day: Service;
+  //private light_of_day: Service;
 
   private bluetoothLED: BluetoothLED | undefined;
 
