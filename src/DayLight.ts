@@ -25,8 +25,8 @@ export class DayLight {
     const times = SunCalc.getTimes(new Date(), this.latitude, this.longitude);
     //const timezoneOffset = new Date().getTimezoneOffset() / 60.0;
 
-    const sunriseHours = times.sunriseHours;
-    const sunriseMinutes = times.sunriseMinutes;
+    const sunriseHours : number = times.sunrise.getHours();
+    const sunriseMinutes : number = times.sunrise.getMinutes();
 
     return this.wrapTime((sunriseHours + sunriseMinutes / 60));
   }
@@ -36,8 +36,8 @@ export class DayLight {
     const times = SunCalc.getTimes(new Date(), this.latitude, this.longitude);
     //const timezoneOffset = new Date().getTimezoneOffset() / 60.0;
 
-    const sunsetHours = times.sunsetHours;
-    const sunsetMinutes = times.sunsetMinutes;
+    const sunsetHours : number = times.sunset.getHours();
+    const sunsetMinutes : number = times.sunset.getMinutes();
 
     return this.wrapTime(sunsetHours + sunsetMinutes / 60 + 12);
   }
