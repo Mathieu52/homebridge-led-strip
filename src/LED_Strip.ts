@@ -136,7 +136,11 @@ export class LED_Strip {
         this.rainbow.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(this.rainbow_states.Color.saturation);
         this.rainbow.getCharacteristic(this.platform.Characteristic.Brightness).updateValue(this.rainbow_states.Color.brightness);
       }
-      platform.log.debug('time: ' + this.dayLight?.time);
+      if (this.light_of_day_states.On && this.dayLight) {
+        this.rainbow.getCharacteristic(this.platform.Characteristic.Hue).updateValue(this.dayLight.color.hue);
+        this.rainbow.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(this.dayLight.color.saturation);
+        this.rainbow.getCharacteristic(this.platform.Characteristic.Brightness).updateValue(this.dayLight.color.brightness);
+      }
     }, this.parameters.HomeKitUpdateInterval);
 
     //  Update the rainbow mode when active on regular interval
@@ -144,7 +148,9 @@ export class LED_Strip {
       if (this.rainbow_states.On && this.rainbow_states.cycle_time_modifier !== 0) {
         this.rainbow_states.Color.hue = (this.rainbow_states.Color.hue + 0.36 * this.parameters.rainbow_update_interval / (this.parameters.rainbow_cycle_time * this.rainbow_states.cycle_time_modifier)) % 360;
         this.rainbow_states.Color.saturation = 100;
+      }
 
+      if (this.rainbow_states.On || this.light_of_day_states.On) {
         this.updateLED();
       }
     }, this.parameters.rainbow_update_interval);
@@ -179,6 +185,10 @@ export class LED_Strip {
       const maxBrightness = 100 - color.brightness;
       const dayLightColor = this.dayLight ? this.dayLight.color : new Color(0, 0, 0);
       dayLightColor.brightness = Math.min(dayLightColor.brightness * (this.light_of_day_states.Brightness / 100.0), maxBrightness);
+
+      if (this.dayLight) {
+        this.platform.log.debug('Daylight color: r: ' + this.dayLight.color.red + ', g: ' + this.dayLight.color.green + ', b:' + this.dayLight.color.blue);
+      }
 
       color = new Color(color.red + dayLightColor.red, color.green + dayLightColor.green, color.blue + dayLightColor.blue);
     }
