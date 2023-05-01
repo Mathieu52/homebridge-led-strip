@@ -14,17 +14,26 @@ import noble = require('@abandonware/noble');
 export class LED_Strip {
   private led: Service;
   private rainbow: Service;
+  private light_of_day: Service;
   private LED_Characteristic: noble.Characteristic | undefined;
 
   private serviceUUID : string;
+
+  private data = {
+    temp_color : new Color(0, 0, 0),
+  };
 
   private states = {
     Connected : false,
     On: false,
     RainbowMode: false,
-    Hue: 0,
-    Saturation:0,
-    Brightness: 0,
+    MainColor : new Color(0, 0, 0),
+    RainbowColor : new Color(0, 0, 0),
+    LightOfDayColor : new Color(0, 0, 0),
+
+    //Hue: 0,
+    //Saturation: 0,
+    // Brightness: 0,
   };
 
   private parameters = {
@@ -49,11 +58,11 @@ export class LED_Strip {
     //.setCharacteristic(this.platform.Characteristic.Manufacturer, 'Unknown')
     //.setCharacteristic(this.platform.Characteristic.Model, 'Unknown')
     //.setCharacteristic(this.platform.Characteristic.SerialNumber, 'Unknown');
-
     this.serviceUUID = accessory.context.device.serviceUUID;
     this.parameters.rainbow_cycle_time = accessory.context.device.rainbowCycle;
 
     this.led = this.accessory.getService('LED') || this.accessory.addService(this.platform.Service.Lightbulb, 'LED');
+    this.light_of_day = this.accessory.getService('Light of day') || this.accessory.addService(this.platform.Service.Lightbulb, 'Light of day');
     this.rainbow = this.accessory.getService('Rainbow mode') || this.accessory.addService(this.platform.Service.Switch, 'Rainbow mode');
 
     noble.on('scanStart', () => this.platform.log.debug('Started Scanning...'));
@@ -122,17 +131,17 @@ export class LED_Strip {
 
     setInterval(() => {
       if (this.states.RainbowMode) {
-        this.led.getCharacteristic(this.platform.Characteristic.Hue).updateValue(this.states.Hue);
-        this.led.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(this.states.Saturation);
-        this.led.getCharacteristic(this.platform.Characteristic.Brightness).updateValue(this.states.Brightness);
+        this.led.getCharacteristic(this.platform.Characteristic.Hue).updateValue(this.states.MainColor.hue);
+        this.led.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(this.states.MainColor.saturation);
+        this.led.getCharacteristic(this.platform.Characteristic.Brightness).updateValue(this.states.MainColor.brightness);
       }
     }, this.parameters.HomeKitUpdateInterval);
 
     //  Update the rainbow mode when active on regular interval
     setInterval(() => {
       if (this.states.RainbowMode) {
-        this.states.Hue = (this.states.Hue + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time) % 360;
-        this.states.Saturation = 100;
+        this.states.MainColor.hue = (this.states.MainColor.hue + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time) % 360;
+        this.states.MainColor.saturation = 100;
 
         this.updateColor();
       }
@@ -140,7 +149,7 @@ export class LED_Strip {
 
     //  When bluetooth is enabled, and the strips haven't been found yet, start a new scan every 1 second;
     setInterval(() => {
-      if (noble.state === 'poweredOn') {
+      if (noble.state === 'poweredOn' && !this.states.Connected) {
         noble.stopScanning();
         noble.startScanning([this.serviceUUID], false);
       }
@@ -171,8 +180,7 @@ export class LED_Strip {
   };
 
   private updateColor() {
-    let color : Color = new Color(0, 0, 0);
-    color.setHSV(this.states.Hue, this.states.Saturation, this.states.Brightness);
+    let color : Color = new Color(this.states.MainColor.red, this.states.MainColor.green, this.states.MainColor.blue);
     if (!this.states.On) {
       color.brightness = 0;
     }
@@ -192,15 +200,15 @@ export class LED_Strip {
   }
 
   async getBrightness(): Promise<CharacteristicValue> {
-    return this.states.Brightness;
+    return this.states.MainColor.brightness;
   }
 
   async getHue(): Promise<CharacteristicValue> {
-    return this.states.Hue;
+    return this.states.MainColor.hue;
   }
 
   async getSaturation(): Promise<CharacteristicValue> {
-    return this.states.Saturation;
+    return this.states.MainColor.saturation;
   }
 
   async setOn(value: CharacteristicValue) {
@@ -209,12 +217,12 @@ export class LED_Strip {
   }
 
   async setBrightness(value: CharacteristicValue) {
-    this.states.Brightness = value as number;
+    this.states.MainColor.brightness = value as number;
     this.updateColor();
   }
 
   async setHue(value: CharacteristicValue) {
-    this.states.Hue = value as number;
+    this.states.MainColor.hue = value as number;
     this.states.RainbowMode = false;
     this.rainbow.getCharacteristic(this.platform.Characteristic.On).updateValue(this.states.RainbowMode);
 
@@ -222,7 +230,7 @@ export class LED_Strip {
   }
 
   async setSaturation(value: CharacteristicValue) {
-    this.states.Saturation = value as number;
+    this.states.MainColor.saturation = value as number;
     this.states.RainbowMode = false;
     this.rainbow.getCharacteristic(this.platform.Characteristic.On).updateValue(this.states.RainbowMode);
 
