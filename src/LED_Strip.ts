@@ -147,11 +147,6 @@ export class LED_Strip {
 
 
   private updateLED() {
-
-    if (!this.bluetoothLED || !this.bluetoothLED.connected) {
-      return;
-    }
-
     let color = new Color(0, 0, 0);
     if (this.main_states.On) {
       if (this.rainbow_states.On) {
@@ -166,7 +161,9 @@ export class LED_Strip {
 
     this.platform.log.debug('Color: r: ' + color.red + ', g: ' + color.green + ', b:' + color.blue);
 
-    this.bluetoothLED.color = color;
+    if (this.bluetoothLED && this.bluetoothLED.connected) {
+      this.bluetoothLED.color = color;
+    }
   }
   /**
    * Handle "SET" requests from HomeKit
