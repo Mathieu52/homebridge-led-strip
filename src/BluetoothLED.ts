@@ -21,7 +21,7 @@ export class BluetoothLED {
       }
     });
 
-    this.onDisconnect.add(() => noble.stopScanning());
+    this.onConnect.add(() => noble.stopScanning());
 
     noble.on('stateChange', (state) => {
       if (state === 'poweredOn') {

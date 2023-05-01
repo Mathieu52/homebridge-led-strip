@@ -68,6 +68,7 @@ export class LED_Strip {
     this.bluetoothLED = new BluetoothLED(this.serviceUUID);
 
     this.bluetoothLED.onConnect.add(() => this.platform.log.info('Connected to ' + this.accessory.displayName));
+    this.bluetoothLED.onConnect.add(() => this.updateLED());
     this.bluetoothLED.onDisconnect.add(() => this.platform.log.info('Disconnected to ' + this.accessory.displayName));
 
     //this.bluetoothLED.onDisconnect.add(() => this.led.setHiddenService(true));
