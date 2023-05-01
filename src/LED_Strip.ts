@@ -164,6 +164,8 @@ export class LED_Strip {
 
     color = color.getLUTCorrected(this.color_correction.r, this.color_correction.g, this.color_correction.b);
 
+    this.platform.log.debug('Color: r: ' + color.red + ', g: ' + color.green + ', b:' + color.blue);
+
     this.bluetoothLED.color = color;
   }
   /**
