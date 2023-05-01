@@ -187,7 +187,7 @@ export class LED_Strip {
       dayLightColor.brightness = Math.min(dayLightColor.brightness * (this.light_of_day_states.Brightness / 100.0), maxBrightness);
 
       if (this.dayLight) {
-        this.platform.log.debug('Daylight color: r: ' + this.dayLight.color.red + ', g: ' + this.dayLight.color.green + ', b:' + this.dayLight.color.blue);
+        this.platform.log.debug('Daylight color: r: ' + this.dayLight.sun_light_color.red + ', g: ' + this.dayLight.sun_light_color.green + ', b:' + this.dayLight.sun_light_color.blue);
       }
 
       color = new Color(color.red + dayLightColor.red, color.green + dayLightColor.green, color.blue + dayLightColor.blue);
