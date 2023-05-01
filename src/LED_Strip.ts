@@ -19,6 +19,7 @@ export class LED_Strip {
   private serviceUUID : string;
 
   private states = {
+    Connected : false,
     On: false,
     RainbowMode: false,
     Hue: 0,
@@ -78,8 +79,12 @@ export class LED_Strip {
 
     noble.on('discover', () => this.platform.log.debug('Noble: discovered peripheral'));
     noble.on('discover', (peripheral) => {
+      peripheral.once('connect', () => this.platform.log.debug('Connected to strips with UUID: ' + peripheral.uuid));
+      peripheral.once('connect', () => this.platform.log.info('Connected to ' + this.accessory.displayName));
+      peripheral.once('connect', () => this.states.Connected = true);
+      peripheral.once('disconnected', () => this.states.Connected = false);
+
       peripheral.connect(() => {
-        this.platform.log.debug('Connected to strips with UUID: ' + peripheral.uuid);
         peripheral.discoverServices([this.serviceUUID], (_error, services) => {
           services[0].discoverCharacteristics([], (_error, characteristics) => {
             const characteristic = characteristics[0];
@@ -137,7 +142,6 @@ export class LED_Strip {
     setInterval(() => {
       if (noble.state === 'poweredOn') {
         noble.stopScanning();
-        this.platform.log.debug('Trying to connect again...');
         noble.startScanning([this.serviceUUID], false);
       }
     }, 5000);
