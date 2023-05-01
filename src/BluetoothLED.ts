@@ -35,6 +35,7 @@ export class BluetoothLED {
 
       peripheral.connect(() => {
         peripheral.discoverServices([UUID], (_error, services) => {
+          this.connected = true;
           services[0].discoverCharacteristics([], (_error, characteristics) => this.characteristic = characteristics[0]);
         });
       });
