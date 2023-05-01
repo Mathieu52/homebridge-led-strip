@@ -57,8 +57,8 @@ export class LED_Strip {
 
     noble.on('scanStart', () => this.platform.log.debug('Started Scanning...'));
     noble.on('scanStop', () => this.platform.log.debug('Stopped Scanning...'));
-    noble.on('warning', (message) => this.platform.log.warn('Noble: ' + message));
-    noble.on('error', (message) => this.platform.log.error('Noble: ' + message));
+    noble.on('warning', (message: string) => this.platform.log.warn('Noble: ' + message));
+    noble.on('error', (message: string) => this.platform.log.error('Noble: ' + message));
     noble.on('stateChange', (state) => this.platform.log.debug('Noble State: ' + state));
 
     /*
@@ -71,6 +71,7 @@ export class LED_Strip {
     });
     */
 
+    noble.on('discover', () => this.platform.log.debug('Noble: discovered peripheral'));
     noble.on('discover', (peripheral) => {
       peripheral.connect(() => {
         this.platform.log.debug('Connected to strips with UUID: ' + peripheral.uuid);
@@ -129,6 +130,7 @@ export class LED_Strip {
 
     //  When bluetooth is enabled, and the strips haven't been found yet, start a new scan every 1 second;
     setInterval(() => {
+      this.platform.log.debug('Trying to connect again...');
       if (noble.state !== 'poweredOn') {
         noble.stopScanning();
         noble.startScanning([this.serviceUUID], false);
