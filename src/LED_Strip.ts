@@ -46,9 +46,9 @@ export class LED_Strip {
   };
 
   private color_correction = {
-    r:1.0,
-    g:0.7,
-    b:0.7,
+    r:2,
+    g:2.8,
+    b:2.8,
   };
 
   constructor(
