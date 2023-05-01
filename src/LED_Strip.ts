@@ -112,25 +112,24 @@ export class LED_Strip {
       .onSet(this.setRainbowBrightness.bind(this))
       .onGet(this.getRainbowBrightness.bind(this));
 
-    /*
+
     setInterval(() => {
-      if (this.states.RainbowMode) {
-        this.led.getCharacteristic(this.platform.Characteristic.Hue).updateValue(this.states.MainColor.hue);
-        this.led.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(this.states.MainColor.saturation);
-        this.led.getCharacteristic(this.platform.Characteristic.Brightness).updateValue(this.states.MainColor.brightness);
+      if (this.rainbow_states.On) {
+        this.rainbow.getCharacteristic(this.platform.Characteristic.Hue).updateValue(this.rainbow_states.Color.hue);
+        this.rainbow.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(this.rainbow_states.Color.saturation);
+        this.rainbow.getCharacteristic(this.platform.Characteristic.Brightness).updateValue(this.rainbow_states.Color.brightness);
       }
     }, this.parameters.HomeKitUpdateInterval);
 
     //  Update the rainbow mode when active on regular interval
     setInterval(() => {
-      if (this.states.RainbowMode) {
-        this.states.MainColor.hue = (this.states.MainColor.hue + 0.36 * this.parameters.rainbow_update_interval / this.parameters.rainbow_cycle_time) % 360;
-        this.states.MainColor.saturation = 100;
+      if (this.rainbow_states.On) {
+        this.rainbow_states.Color.hue = (this.rainbow_states.Color.hue + 0.36 * this.parameters.rainbow_update_interval * this.rainbow_states.cycle_time_modifier / this.parameters.rainbow_cycle_time) % 360;
+        this.rainbow_states.Color.saturation = 100;
 
         this.updateLED();
       }
     }, this.parameters.rainbow_update_interval);
-      */
   }
 
   /*
@@ -148,16 +147,24 @@ export class LED_Strip {
 
 
   private updateLED() {
-    let color : Color = new Color(this.main_states.Color.red, this.main_states.Color.green, this.main_states.Color.blue);
-    if (!this.main_states.On) {
-      color.brightness = 0;
+
+    if (!this.bluetoothLED || !this.bluetoothLED.connected) {
+      return;
+    }
+
+    let color = new Color(0, 0, 0);
+    if (this.main_states.On) {
+      if (this.rainbow_states.On) {
+        color = this.rainbow_states.Color;
+        color.brightness = this.main_states.Color.brightness;
+      } else {
+        color = this.main_states.Color;
+      }
     }
 
     color = color.getLUTCorrected(this.color_correction.r, this.color_correction.g, this.color_correction.b);
 
-    if (this.bluetoothLED) {
-      this.bluetoothLED.color = color;
-    }
+    this.bluetoothLED.color = color;
   }
   /**
    * Handle "SET" requests from HomeKit

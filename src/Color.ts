@@ -126,4 +126,8 @@ export class Color {
 
     return new Color(r, g, b, this.alpha);
   }
+
+  public static fromColor(color : Color) : Color {
+    return new Color(color.red, color.green, color.blue, color.alpha);
+  }
 }
