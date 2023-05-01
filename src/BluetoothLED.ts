@@ -42,7 +42,7 @@ export class BluetoothLED {
   }
 
   private write (message:number[]) {
-    if (typeof this.characteristic !== 'undefined') {
+    if (this.characteristic) {
       this.characteristic.write(Buffer.from(message), true);
     }
   }
