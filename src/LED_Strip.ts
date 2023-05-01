@@ -132,7 +132,7 @@ export class LED_Strip {
     noble.startScanning([this.serviceUUID], false);
     setInterval(() => {
       this.platform.log.debug('Trying to connect again...');
-      if (noble.state !== 'poweredOn') {
+      if (noble.state === 'poweredOn') {
         noble.stopScanning();
         noble.startScanning([this.serviceUUID], false);
       }
