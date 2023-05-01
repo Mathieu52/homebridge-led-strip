@@ -129,13 +129,14 @@ export class LED_Strip {
     }, this.parameters.rainbow_update_interval);
 
     //  When bluetooth is enabled, and the strips haven't been found yet, start a new scan every 1 second;
+    noble.startScanning([this.serviceUUID], false);
     setInterval(() => {
       this.platform.log.debug('Trying to connect again...');
       if (noble.state !== 'poweredOn') {
         noble.stopScanning();
         noble.startScanning([this.serviceUUID], false);
       }
-    }, 10000);
+    }, 5000);
   }
 
   /*
