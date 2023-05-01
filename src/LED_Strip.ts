@@ -182,12 +182,17 @@ export class LED_Strip {
     }
 
     if (this.light_of_day_states.On) {
+      if (this.dayLight) {
+        this.platform.log.debug('Time: ' + this.dayLight.time);
+        this.platform.log.debug('Sunrise: ' + this.dayLight.sunrise);
+        this.platform.log.debug('Sunset: ' + this.dayLight.sunset);
+      }
       const maxBrightness = 100 - color.brightness;
       const dayLightColor = this.dayLight ? this.dayLight.color : new Color(0, 0, 0);
       dayLightColor.brightness = Math.min(dayLightColor.brightness * (this.light_of_day_states.Brightness / 100.0), maxBrightness);
 
       if (this.dayLight) {
-        this.platform.log.debug('Daylight color: r: ' + this.dayLight.sun_light_color.red + ', g: ' + this.dayLight.sun_light_color.green + ', b:' + this.dayLight.sun_light_color.blue);
+        //this.platform.log.debug('Daylight color: r: ' + this.dayLight.sun_light_color.red + ', g: ' + this.dayLight.sun_light_color.green + ', b:' + this.dayLight.sun_light_color.blue);
       }
 
       color = new Color(color.red + dayLightColor.red, color.green + dayLightColor.green, color.blue + dayLightColor.blue);
@@ -195,7 +200,7 @@ export class LED_Strip {
 
     color = color.getLUTCorrected(this.color_correction.r, this.color_correction.g, this.color_correction.b);
 
-    this.platform.log.debug('Color: r: ' + color.red + ', g: ' + color.green + ', b:' + color.blue);
+    //this.platform.log.debug('Color: r: ' + color.red + ', g: ' + color.green + ', b:' + color.blue);
 
     if (this.bluetoothLED && this.bluetoothLED.connected) {
       this.bluetoothLED.color = color;
