@@ -48,7 +48,7 @@ export class DayLight {
   }
 
   get intensity(): number {
-    const t = this.map(this.time, this.sunrise, SunCalc, 0, Math.PI);
+    const t = this.map(this.time, this.sunrise, this.sunset, 0, Math.PI);
     return Math.min(Math.max(Math.pow(Math.sin(t), 1.0 / 10.0), 0), 1);
   }
 
