@@ -17,7 +17,7 @@ export class DayLight {
     const hours = date.getUTCHours();
     const minutes = date.getUTCMinutes();
 
-    return this.wrapTime((hours + minutes / 60) + timezoneOffset);
+    return this.wrapTime((hours + minutes / 60) - timezoneOffset);
   }
 
   get sunrise(): number {
@@ -28,7 +28,7 @@ export class DayLight {
     const sunriseHours = times.sunrise.getUTCHours();
     const sunriseMinutes = times.sunrise.getUTCMinutes();
 
-    return this.wrapTime((sunriseHours + sunriseMinutes / 60) + timezoneOffset);
+    return this.wrapTime((sunriseHours + sunriseMinutes / 60) - timezoneOffset);
   }
 
   get sunset(): number {
@@ -39,7 +39,7 @@ export class DayLight {
     const sunsetHours = times.sunset.getUTCHours();
     const sunsetMinutes = times.sunset.getUTCMinutes();
 
-    return this.wrapTime((sunsetHours + sunsetMinutes / 60) + timezoneOffset);
+    return this.wrapTime((sunsetHours + sunsetMinutes / 60) - timezoneOffset);
   }
 
   get temperature(): number {
