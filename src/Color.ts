@@ -42,7 +42,11 @@ export class Color {
     const minval = Math.min(this.red, this.green, this.blue);
     const difference = maxval - minval;
 
-    return difference * 100.0 / maxval;
+    if (maxval === 0) {
+      return 0;
+    } else {
+      return difference * 100.0 / maxval;
+    }
   }
 
   set saturation(s: number) {
