@@ -135,7 +135,7 @@ export class LED_Strip {
         noble.stopScanning();
         noble.startScanning([this.serviceUUID], false);
       }
-    }, 1000);
+    }, 10000);
   }
 
   /*
