@@ -123,8 +123,8 @@ export class LED_Strip {
 
     //  Update the rainbow mode when active on regular interval
     setInterval(() => {
-      if (this.rainbow_states.On) {
-        this.rainbow_states.Color.hue = (this.rainbow_states.Color.hue + 0.36 * this.parameters.rainbow_update_interval * this.rainbow_states.cycle_time_modifier / this.parameters.rainbow_cycle_time) % 360;
+      if (this.rainbow_states.On && this.rainbow_states.cycle_time_modifier !== 0) {
+        this.rainbow_states.Color.hue = (this.rainbow_states.Color.hue + 0.36 * this.parameters.rainbow_update_interval / (this.parameters.rainbow_cycle_time * this.rainbow_states.cycle_time_modifier)) % 360;
         this.rainbow_states.Color.saturation = 100;
 
         this.updateLED();
@@ -223,10 +223,12 @@ export class LED_Strip {
   }
 
   async setRainbowOn(value: CharacteristicValue) {
-    if ((value as boolean) && !this.rainbow_states.On) {
+    const tempValue = this.rainbow_states.On;
+    this.rainbow_states.On = value as boolean;
+
+    if ((value as boolean) && !tempValue) {
       this.rainbow_states.Color = new Color(this.main_states.Color.red, this.main_states.Color.green, this.main_states.Color.blue, this.main_states.Color.alpha);
     }
-    this.rainbow_states.On = value as boolean;
 
     this.updateLED();
   }
