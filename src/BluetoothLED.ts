@@ -39,6 +39,13 @@ export class BluetoothLED {
         });
       });
     });
+
+    setInterval(() => {
+      noble.stopScanning();
+      if (noble.state === 'poweredOn' && !this.connected) {
+        noble.startScanning([this.UUID], false);
+      }
+    }, 5000);
   }
 
   private write (message:number[]) {

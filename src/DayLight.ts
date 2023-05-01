@@ -23,7 +23,6 @@ export class DayLight {
   get sunrise(): number {
     // Use the SunCalc library to calculate the sunrise and sunset times
     const times = SunCalc.getTimes(new Date(), this.latitude, this.longitude);
-    //const timezoneOffset = new Date().getTimezoneOffset() / 60.0;
 
     const sunriseHours = times.sunrise.getHours();
     const sunriseMinutes = times.sunrise.getMinutes();
@@ -34,7 +33,6 @@ export class DayLight {
   get sunset(): number {
     // Use the SunCalc library to calculate the sunrise and sunset times
     const times = SunCalc.getTimes(new Date(), this.latitude, this.longitude);
-    //const timezoneOffset = new Date().getTimezoneOffset() / 60.0;
 
     const sunsetHours = times.sunset.getHours();
     const sunsetMinutes = times.sunset.getMinutes();
