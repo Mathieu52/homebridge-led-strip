@@ -146,8 +146,8 @@ export class LED_Strip {
 
     //  Update the rainbow mode when active on regular interval
     setInterval(() => {
-      if (this.rainbow_states.On && this.rainbow_states.cycle_time_modifier !== 0) {
-        this.rainbow_states.Color.hue = (this.rainbow_states.Color.hue + 0.36 * this.parameters.rainbow_update_interval / (this.parameters.rainbow_cycle_time * this.rainbow_states.cycle_time_modifier)) % 360;
+      if (this.rainbow_states.On) {
+        this.rainbow_states.Color.hue = (this.rainbow_states.Color.hue + 0.36 * this.parameters.rainbow_update_interval * this.rainbow_states.cycle_time_modifier / (this.parameters.rainbow_cycle_time)) % 360;
         this.rainbow_states.Color.saturation = 100;
       }
 
