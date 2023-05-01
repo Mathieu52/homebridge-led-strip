@@ -73,7 +73,11 @@ export class BluetoothLED {
     this._connected = value;
 
     if (tempValue !== value) {
-      (value ? this.onConnect : this.onDisconnect).fire;
+      if (value) {
+        this.onConnect.fire;
+      } else {
+        this.onDisconnect.fire;
+      }
     }
   }
 }

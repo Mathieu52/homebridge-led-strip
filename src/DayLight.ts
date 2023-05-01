@@ -1,4 +1,3 @@
-import { hrtime } from 'process';
 import * as SunCalc from 'suncalc';
 import { Color } from './Color';
 
